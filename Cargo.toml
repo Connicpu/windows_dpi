@@ -1,0 +1,11 @@
+[package]
+authors = ["Connie Hilarides <conni_h@outlook.com>"]
+name = "windows_dpi"
+version = "0.1.0"
+
+[dependencies]
+gdi32-sys = "0.2.0"
+lazy_static = "0.2.8"
+libloading = "0.4.0"
+user32-sys = "0.2.0"
+winapi = "0.2.8"
