@@ -61,22 +61,18 @@ pub fn enable_dpi() {
     }
 }
 
-pub fn get_dpi_for(hwnd: HWND) -> f32 {
+pub unsafe fn get_dpi_for(hwnd: HWND) -> f32 {
     // This will be Some on a system with Windows 8.1 or newer
-    if let Some(get_dpi_for) = (*GET_DPI_FOR_MONITOR).as_ref() {
-        unsafe {
-            let hmon = user32::MonitorFromWindow(hwnd, 0 /* EFFECTIVE_DPI */);
-            let mut dpix = 96;
-            let mut dpiy = 96;
-            get_dpi_for(hmon, 1 /* DEFAULTTOPRIMARY */, &mut dpix, &mut dpiy);
-            dpix as f32 / 96.0
-        }
+    if let (true, Some(get_dpi_for)) = (hwnd != ptr::null_mut(), (*GET_DPI_FOR_MONITOR).as_ref()) {
+        let hmon = user32::MonitorFromWindow(hwnd, 0 /* EFFECTIVE_DPI */);
+        let mut dpix = 96;
+        let mut dpiy = 96;
+        get_dpi_for(hmon, 1 /* DEFAULTTOPRIMARY */, &mut dpix, &mut dpiy);
+        dpix as f32 / 96.0
     // On systems without ShCore, there is only a global DPI anyways
     } else {
-        unsafe {
-            let hdc = user32::GetDC(ptr::null_mut());
-            let dpi = gdi32::GetDeviceCaps(hdc, LOGPIXELSX);
-            dpi as f32 / 96.0
-        }
+        let hdc = user32::GetDC(ptr::null_mut());
+        let dpi = gdi32::GetDeviceCaps(hdc, LOGPIXELSX);
+        dpi as f32 / 96.0
     }
 }
