@@ -17,18 +17,18 @@ pub use windows::desktop_dpi;
 #[cfg(windows)]
 pub use windows::get_dpi_for;
 
-#[cfg(linux)]
+#[cfg(target_os = "linux")]
 pub use linux::enable_dpi;
-#[cfg(linux)]
+#[cfg(target_os = "linux")]
 pub use linux::desktop_dpi;
-#[cfg(linux)]
+#[cfg(target_os = "linux")]
 pub use linux::get_dpi_for;
 
-#[cfg(macos)]
+#[cfg(target_os = "macos")]
 pub use macos::enable_dpi;
-#[cfg(macos)]
+#[cfg(target_os = "macos")]
 pub use macos::desktop_dpi;
-#[cfg(macos)]
+#[cfg(target_os = "macos")]
 pub use macos::get_dpi_for;
 
 #[cfg(windows)]
@@ -109,14 +109,14 @@ pub mod windows {
     }
 }
 
-#[cfg(linux)]
+#[cfg(target_os = "linux")]
 pub mod linux {
     pub fn enable_dpi() {}
     pub fn desktop_dpi() -> f32 { 1.0 }
     pub unsafe fn get_dpi_for(window: *mut ::libc::c_void) -> f32 {}
 }
 
-#[cfg(macos)]
+#[cfg(target_os = "macos")]
 pub mod macos {
     pub fn enable_dpi() {}
     pub fn desktop_dpi() -> f32 { 1.0 }
