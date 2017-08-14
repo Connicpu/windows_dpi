@@ -1,19 +1,16 @@
 [package]
 authors = ["Connie Hilarides <conni_h@outlook.com>"]
-name = "windows_dpi"
-version = "0.1.1"
-repository = "https://github.com/Connicpu/windows_dpi"
-documentation = "https://docs.rs/windows_dpi/*/x86_64-pc-windows-msvc/windows_dpi/"
-description = """
-Provides an API for marking a process as DPI-aware on windows systems. Works for
-Windows 7+, using the newer API when available. Also provides a method for getting
-the DPI appropriate for an HWND.
-"""
+description = "Provides an API for marking a process as DPI-aware on windows systems. Works for\nWindows 7+, using the newer API when available. Also provides a method for getting\nthe DPI appropriate for an HWND.\n\nMethods are currently stubs for other platforms, if anybody would like to contribute to\nsupport other platforms I'm happy to help!\n"
+documentation = "https://docs.rs/windows_dpi/"
 license = "MIT"
+name = "windows_dpi"
+repository = "https://github.com/Connicpu/windows_dpi"
+version = "0.1.1"
 
 [dependencies]
 gdi32-sys = "0.2.0"
 lazy_static = "0.2.8"
+libc = "0.2.29"
 libloading = "0.4.0"
 user32-sys = "0.2.0"
 winapi = "0.2.8"
