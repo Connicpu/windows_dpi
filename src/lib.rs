@@ -113,12 +113,12 @@ pub mod windows {
 pub mod linux {
     pub fn enable_dpi() {}
     pub fn desktop_dpi() -> f32 { 1.0 }
-    pub unsafe fn get_dpi_for(window: *mut ::libc::c_void) -> f32 {}
+    pub unsafe fn get_dpi_for(window: *mut ::libc::c_void) -> f32 { 1.0 }
 }
 
 #[cfg(target_os = "macos")]
 pub mod macos {
     pub fn enable_dpi() {}
     pub fn desktop_dpi() -> f32 { 1.0 }
-    pub unsafe fn get_dpi_for(window: *mut ::libc::c_void) -> f32 {}
+    pub unsafe fn get_dpi_for(window: *mut ::libc::c_void) -> f32 { 1.0 }
 }
