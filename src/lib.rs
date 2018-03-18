@@ -1,13 +1,6 @@
-#[cfg(windows)]
-extern crate libloading;
-#[cfg(windows)]
-extern crate winapi;
-#[cfg(windows)]
-extern crate user32;
-#[cfg(windows)]
-extern crate gdi32;
 #[macro_use]
 extern crate lazy_static;
+
 extern crate libc;
 
 #[cfg(windows)]
@@ -33,10 +26,16 @@ pub use macos::get_dpi_for;
 
 #[cfg(windows)]
 pub mod windows {
-    use libloading::{Library, Symbol};
+    extern crate libloading;
+    extern crate winapi;
+
     use std::ptr;
-    use winapi::{BOOL, HRESULT, DWORD, HWND, HMONITOR, UINT, LOGPIXELSX};
-    use {user32, gdi32};
+
+    use self::libloading::{Library, Symbol};
+    use self::winapi::shared::minwindef::*;
+    use self::winapi::shared::winerror::*;
+    use self::winapi::shared::windef::*;
+    use self::winapi::um::{wingdi, winuser};
 
     type TSetProcDpi = unsafe extern "system" fn(DWORD) -> HRESULT;
     type TGetMonDpi = unsafe extern "system" fn(HMONITOR, DWORD, *mut UINT, *mut UINT);
@@ -88,22 +87,24 @@ pub mod windows {
         }
     }
 
-    pub fn desktop_dpi() -> f32 { 
+    pub fn desktop_dpi() -> f32 {
         unsafe { get_dpi_for(ptr::null_mut()) }
     }
 
     pub unsafe fn get_dpi_for(hwnd: HWND) -> f32 {
         // This will be Some on a system with Windows 8.1 or newer
-        if let (true, Some(get_dpi_for)) = (hwnd != ptr::null_mut(), (*GET_DPI_FOR_MONITOR).as_ref()) {
-            let hmon = user32::MonitorFromWindow(hwnd, 0 /* EFFECTIVE_DPI */);
+        if let (true, Some(get_dpi_for)) =
+            (hwnd != ptr::null_mut(), (*GET_DPI_FOR_MONITOR).as_ref())
+        {
+            let hmon = winuser::MonitorFromWindow(hwnd, 0 /* EFFECTIVE_DPI */);
             let mut dpix = 96;
             let mut dpiy = 96;
             get_dpi_for(hmon, 1 /* DEFAULTTOPRIMARY */, &mut dpix, &mut dpiy);
             dpix as f32 / 96.0
         // On systems without ShCore, there is only a global DPI anyways
         } else {
-            let hdc = user32::GetDC(ptr::null_mut());
-            let dpi = gdi32::GetDeviceCaps(hdc, LOGPIXELSX);
+            let hdc = winuser::GetDC(ptr::null_mut());
+            let dpi = wingdi::GetDeviceCaps(hdc, wingdi::LOGPIXELSX);
             dpi as f32 / 96.0
         }
     }
@@ -112,13 +113,21 @@ pub mod windows {
 #[cfg(target_os = "linux")]
 pub mod linux {
     pub fn enable_dpi() {}
-    pub fn desktop_dpi() -> f32 { 1.0 }
-    pub unsafe fn get_dpi_for(window: *mut ::libc::c_void) -> f32 { 1.0 }
+    pub fn desktop_dpi() -> f32 {
+        1.0
+    }
+    pub unsafe fn get_dpi_for(_window: *mut ::libc::c_void) -> f32 {
+        1.0
+    }
 }
 
 #[cfg(target_os = "macos")]
 pub mod macos {
     pub fn enable_dpi() {}
-    pub fn desktop_dpi() -> f32 { 1.0 }
-    pub unsafe fn get_dpi_for(window: *mut ::libc::c_void) -> f32 { 1.0 }
+    pub fn desktop_dpi() -> f32 {
+        1.0
+    }
+    pub unsafe fn get_dpi_for(_window: *mut ::libc::c_void) -> f32 {
+        1.0
+    }
 }
