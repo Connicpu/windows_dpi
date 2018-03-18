@@ -17,27 +17,37 @@ extern crate lazy_static;
 extern crate libc;
 
 #[cfg(target_os = "windows")]
+#[doc(inline)]
 pub use windows::enable_dpi;
 #[cfg(target_os = "windows")]
+#[doc(inline)]
 pub use windows::desktop_dpi;
 #[cfg(target_os = "windows")]
+#[doc(inline)]
 pub use windows::get_dpi_for;
 
 #[cfg(target_os = "linux")]
+#[doc(inline)]
 pub use linux::enable_dpi;
 #[cfg(target_os = "linux")]
+#[doc(inline)]
 pub use linux::desktop_dpi;
 #[cfg(target_os = "linux")]
+#[doc(inline)]
 pub use linux::get_dpi_for;
 
 #[cfg(target_os = "macos")]
+#[doc(inline)]
 pub use macos::enable_dpi;
 #[cfg(target_os = "macos")]
+#[doc(inline)]
 pub use macos::desktop_dpi;
 #[cfg(target_os = "macos")]
+#[doc(inline)]
 pub use macos::get_dpi_for;
 
 #[cfg(target_os = "windows")]
+#[doc(hidden)]
 pub mod windows {
     use std::ptr;
 
@@ -87,8 +97,10 @@ pub mod windows {
 
     /// Tells the OS this program is aware of DPI and windows will not be
     /// scaled by the OS. Ensure your program uses the DPI values, especially
-    /// checking per-window and listening for the WM_DPI_CHANGED message. Please
-    /// be a good high-DPI citizen :)
+    /// checking per-window and listening for the [`WM_DPICHANGED`]
+    /// message. Please be a good high-DPI citizen :)
+    /// 
+    /// [`WM_DPICHANGED`]: https://docs.rs/winapi/0.3.*/x86_64-pc-windows-msvc/winapi/um/winuser/constant.WM_DPICHANGED.html
     pub fn enable_dpi() {
         if let Some(set_awareness) = (*SET_PROCESS_DPI_AWARENESS).as_ref() {
             unsafe {
@@ -108,7 +120,9 @@ pub mod windows {
 
     /// Returns the DPI of the desktop on which a window currently resides.
     /// null may be passed, in which case it will perform the same behavior
-    /// as desktop_dpi().
+    /// as [`desktop_dpi`].
+    /// 
+    /// [`desktop_dpi`]: desktop_dpi
     pub unsafe fn get_dpi_for(hwnd: HWND) -> f32 {
         // This will be Some on a system with Windows 8.1 or newer
         if let (true, Some(get_dpi_for)) =
@@ -129,6 +143,7 @@ pub mod windows {
 }
 
 #[cfg(target_os = "linux")]
+#[doc(hidden)]
 pub mod linux {
     /// Stub function, I don't believe any linux desktops do OS-overridden scaling
     pub fn enable_dpi() {}
@@ -143,6 +158,7 @@ pub mod linux {
 }
 
 #[cfg(target_os = "macos")]
+#[doc(hidden)]
 pub mod macos {
     use cocoa::base::{class, id, nil, BOOL, YES};
     use cocoa::appkit::NSScreen;
@@ -153,8 +169,10 @@ pub mod macos {
     pub fn enable_dpi() {}
 
     /// Gets the mainScreen DPI. Limitation: This will always be the screen
-    /// which currently has keyboard focus. Use [get_dpi_for] if you want the
+    /// which currently has keyboard focus. Use [`get_dpi_for`] if you want the
     /// dpi of a specific screen or window.
+    /// 
+    /// [`get_dpi_for`]: get_dpi_for
     pub fn desktop_dpi() -> f32 {
         unsafe {
             let screen = NSScreen::mainScreen(nil);
@@ -165,8 +183,10 @@ pub mod macos {
 
     /// Gets the DPI for a specific surface. You can use NSScreen or NSWindow, but any
     /// object that respondes to `-(CGFloat)backingScaleFactor` may be passed. If the
-    /// passed object is nil, or does not respond to `backingScaleFactor`, [desktop_dpi]
+    /// passed object is nil, or does not respond to `backingScaleFactor`, [`desktop_dpi`]
     /// is called instead.
+    /// 
+    /// [`desktop_dpi`]: desktop_dpi
     pub unsafe fn get_dpi_for(object: id) -> f32 {
         if window == nil {
             return desktop_dpi();
