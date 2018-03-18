@@ -1,13 +1,24 @@
+#![allow(unused_imports)]
+
+#[cfg(target_os = "windows")]
+extern crate libloading;
+#[cfg(target_os = "windows")]
+extern crate winapi;
+
+#[cfg(target_os = "macos")]
+#[macro_use]
+extern crate objc;
+
 #[macro_use]
 extern crate lazy_static;
 
 extern crate libc;
 
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 pub use windows::enable_dpi;
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 pub use windows::desktop_dpi;
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 pub use windows::get_dpi_for;
 
 #[cfg(target_os = "linux")]
@@ -24,18 +35,15 @@ pub use macos::desktop_dpi;
 #[cfg(target_os = "macos")]
 pub use macos::get_dpi_for;
 
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 pub mod windows {
-    extern crate libloading;
-    extern crate winapi;
-
     use std::ptr;
 
-    use self::libloading::{Library, Symbol};
-    use self::winapi::shared::minwindef::*;
-    use self::winapi::shared::winerror::*;
-    use self::winapi::shared::windef::*;
-    use self::winapi::um::{wingdi, winuser};
+    use libloading::{Library, Symbol};
+    use winapi::shared::minwindef::*;
+    use winapi::shared::winerror::*;
+    use winapi::shared::windef::*;
+    use winapi::um::{wingdi, winuser};
 
     type TSetProcDpi = unsafe extern "system" fn(DWORD) -> HRESULT;
     type TGetMonDpi = unsafe extern "system" fn(HMONITOR, DWORD, *mut UINT, *mut UINT);
@@ -125,9 +133,14 @@ pub mod linux {
 pub mod macos {
     pub fn enable_dpi() {}
     pub fn desktop_dpi() -> f32 {
-        1.0
+        use objc::runtime::*;
+
+        let cls = Class::get("NSWindow");
+        let scale: f32 = msg_send![cls, backingScaleFactor];
+
+        scale
     }
     pub unsafe fn get_dpi_for(_window: *mut ::libc::c_void) -> f32 {
-        1.0
+        desktop_dpi()
     }
 }
