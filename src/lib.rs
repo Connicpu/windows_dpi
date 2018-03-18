@@ -6,6 +6,9 @@ extern crate libloading;
 extern crate winapi;
 
 #[cfg(target_os = "macos")]
+#[macro_use]
+extern crate objc;
+#[cfg(target_os = "macos")]
 extern crate cocoa;
 
 #[macro_use]
@@ -130,7 +133,7 @@ pub mod linux {
 
 #[cfg(target_os = "macos")]
 pub mod macos {
-    use cocoa::base::{nil, class};
+    use cocoa::base::{id, nil, class, BOOL, YES};
     use cocoa::appkit::NSScreen;
 
     pub fn enable_dpi() {}
@@ -141,7 +144,18 @@ pub mod macos {
             scale as f32
         }
     }
-    pub unsafe fn get_dpi_for(_window: *mut ::libc::c_void) -> f32 {
-        desktop_dpi()
+    pub unsafe fn get_dpi_for(window: *mut ::libc::c_void) -> f32 {
+        let window = window as id;
+        if window == nil {
+            return desktop_dpi();
+        }
+
+        let is_window: BOOL = msg_send![window, respondsToSelector: sel!(backingScaleFactor)];
+        if is_window == YES {
+            let scale = window.backingScaleFactor();
+            scale as f32
+        } else {
+            desktop_dpi()
+        }
     }
 }

@@ -23,4 +23,5 @@ libloading = "0.5"
 winapi = { version = "0.3.4", features = ["minwindef", "windef", "winerror", "wingdi", "winuser"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
+objc = "0.2.2"
 cocoa = "0.14"
