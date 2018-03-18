@@ -6,8 +6,7 @@ extern crate libloading;
 extern crate winapi;
 
 #[cfg(target_os = "macos")]
-#[macro_use]
-extern crate objc;
+extern crate cocoa;
 
 #[macro_use]
 extern crate lazy_static;
@@ -131,14 +130,16 @@ pub mod linux {
 
 #[cfg(target_os = "macos")]
 pub mod macos {
+    use cocoa::base::{nil, class};
+    use cocoa::appkit::NSScreen;
+
     pub fn enable_dpi() {}
     pub fn desktop_dpi() -> f32 {
-        use objc::runtime::*;
-
-        let cls = Class::get("NSWindow");
-        let scale: f32 = msg_send![cls, backingScaleFactor];
-
-        scale
+        unsafe {
+            let screen = NSScreen::mainScreen(nil);
+            let scale = screen.backingScaleFactor();
+            scale as f32
+        }
     }
     pub unsafe fn get_dpi_for(_window: *mut ::libc::c_void) -> f32 {
         desktop_dpi()
